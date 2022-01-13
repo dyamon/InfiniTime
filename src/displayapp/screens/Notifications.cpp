@@ -12,8 +12,8 @@ Notifications::Notifications(DisplayApp* app,
                              Pinetime::Controllers::NotificationManager& notificationManager,
                              Pinetime::Controllers::AlertNotificationService& alertNotificationService,
                              Pinetime::Controllers::MotorController& motorController,
-                             Modes mode)
-  : Screen(app), notificationManager {notificationManager}, alertNotificationService {alertNotificationService}, mode {mode} {
+                             Screen::Modes mode)
+  : Screen(app, mode), notificationManager {notificationManager}, alertNotificationService {alertNotificationService} {
   notificationManager.ClearNewNotificationFlag();
   auto notification = notificationManager.GetLastNotification();
   if (notification.valid) {
@@ -32,11 +32,11 @@ Notifications::Notifications(DisplayApp* app,
                                                      0,
                                                      notification.category,
                                                      notificationManager.NbNotifications(),
-                                                     Modes::Preview,
+                                                     Screen::Modes::Preview,
                                                      alertNotificationService);
   }
 
-  if (mode == Modes::Preview) {
+  if (mode == Screen::Modes::Preview) {
     if (notification.category == Controllers::NotificationManager::Categories::IncomingCall) {
       motorController.StartRinging();
     } else {
@@ -64,7 +64,7 @@ Notifications::~Notifications() {
 }
 
 void Notifications::Refresh() {
-  if (mode == Modes::Preview && timeoutLine != nullptr) {
+  if (mode == Screen::Modes::Preview && timeoutLine != nullptr) {
     auto tick = xTaskGetTickCount();
     int32_t pos = 240 - ((tick - timeoutTickCountStart) / ((timeoutTickCountEnd - timeoutTickCountStart) / 240));
     if (pos < 0)
@@ -76,7 +76,7 @@ void Notifications::Refresh() {
 }
 
 bool Notifications::OnTouchEvent(Pinetime::Applications::TouchEvents event) {
-  if (mode != Modes::Normal) {
+  if (mode != Screen::Modes::Normal) {
     return false;
   }
 
@@ -146,7 +146,7 @@ Notifications::NotificationItem::NotificationItem(const char* title,
                                                   uint8_t notifNr,
                                                   Controllers::NotificationManager::Categories category,
                                                   uint8_t notifNb,
-                                                  Modes mode,
+                                                  Screen::Modes mode,
                                                   Pinetime::Controllers::AlertNotificationService& alertNotificationService)
   : mode {mode}, alertNotificationService {alertNotificationService} {
   lv_obj_t* container1 = lv_cont_create(lv_scr_act(), NULL);

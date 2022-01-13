@@ -4,6 +4,7 @@
 #include <lvgl/lvgl.h>
 #include "components/battery/BatteryController.h"
 #include "components/motion/MotionController.h"
+#include "components/motor/MotorController.h"
 #include "components/ble/BleController.h"
 #include "components/ble/NotificationManager.h"
 #include "components/settings/Settings.h"
@@ -22,7 +23,8 @@ Clock::Clock(DisplayApp* app,
              Controllers::NotificationManager& notificatioManager,
              Controllers::Settings& settingsController,
              Controllers::HeartRateController& heartRateController,
-             Controllers::MotionController& motionController)
+             Controllers::MotionController& motionController,
+             Controllers::MotorController& motorController)
   : Screen(app),
     dateTimeController {dateTimeController},
     batteryController {batteryController},
@@ -31,6 +33,7 @@ Clock::Clock(DisplayApp* app,
     settingsController {settingsController},
     heartRateController {heartRateController},
     motionController {motionController},
+    motorController {motorController},
     screen {[this, &settingsController]() {
       switch (settingsController.GetClockFace()) {
         case 0:
@@ -80,7 +83,11 @@ std::unique_ptr<Screen> Clock::WatchFaceAnalogScreen() {
 }
 
 std::unique_ptr<Screen> Clock::WatchFaceFuzzyScreen() {
-  return std::make_unique<Screens::WatchFaceFuzzy>(app, dateTimeController);
+  return std::make_unique<Screens::WatchFaceFuzzy>(app,
+                                                   dateTimeController,
+                                                   settingsController,
+                                                   motorController,
+                                                   motionController);
 }
 
 std::unique_ptr<Screen> Clock::PineTimeStyleScreen() {

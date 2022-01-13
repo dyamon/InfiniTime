@@ -13,6 +13,7 @@
 #include "displayapp/screens/ApplicationList.h"
 #include "displayapp/screens/Brightness.h"
 #include "displayapp/screens/Clock.h"
+#include "displayapp/screens/WatchFaceDigital.h"
 #include "displayapp/screens/FirmwareUpdate.h"
 #include "displayapp/screens/FirmwareValidation.h"
 #include "displayapp/screens/InfiniPaint.h"
@@ -343,9 +344,21 @@ void DisplayApp::LoadApp(Apps app, DisplayApp::FullRefreshDirections direction) 
                                                        notificationManager,
                                                        settingsController,
                                                        heartRateController,
-                                                       motionController);
+                                                       motionController,
+                                                       motorController);
       break;
-
+    case Apps::WatchFaceDigitalPreview:
+      currentScreen = std::make_unique<Screens::WatchFaceDigital>(this,
+                                                       dateTimeController,
+                                                       batteryController,
+                                                       bleController,
+                                                       notificationManager,
+                                                       settingsController,
+                                                       heartRateController,
+                                                       motionController,
+                                                       Screens::Screen::Modes::Preview);
+      ReturnApp(Apps::Clock, FullRefreshDirections::Left, TouchEvents::None);
+      break;
     case Apps::Error:
       currentScreen = std::make_unique<Screens::Error>(this, bootError);
       ReturnApp(Apps::Clock, FullRefreshDirections::Down, TouchEvents::None);
@@ -367,12 +380,12 @@ void DisplayApp::LoadApp(Apps app, DisplayApp::FullRefreshDirections direction) 
 
     case Apps::Notifications:
       currentScreen = std::make_unique<Screens::Notifications>(
-        this, notificationManager, systemTask->nimble().alertService(), motorController, Screens::Notifications::Modes::Normal);
+        this, notificationManager, systemTask->nimble().alertService(), motorController, Screens::Screen::Modes::Normal);
       ReturnApp(Apps::Clock, FullRefreshDirections::Up, TouchEvents::SwipeUp);
       break;
     case Apps::NotificationsPreview:
       currentScreen = std::make_unique<Screens::Notifications>(
-        this, notificationManager, systemTask->nimble().alertService(), motorController, Screens::Notifications::Modes::Preview);
+        this, notificationManager, systemTask->nimble().alertService(), motorController, Screens::Screen::Modes::Preview);
       ReturnApp(Apps::Clock, FullRefreshDirections::Up, TouchEvents::SwipeUp);
       break;
     case Apps::Timer:

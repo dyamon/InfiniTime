@@ -22,8 +22,9 @@ WatchFaceDigital::WatchFaceDigital(DisplayApp* app,
                                    Controllers::NotificationManager& notificatioManager,
                                    Controllers::Settings& settingsController,
                                    Controllers::HeartRateController& heartRateController,
-                                   Controllers::MotionController& motionController)
-  : Screen(app),
+                                   Controllers::MotionController& motionController,
+                                   Screen::Modes mode)
+  : Screen(app, mode),
     currentDateTime {{}},
     dateTimeController {dateTimeController},
     batteryController {batteryController},
@@ -32,7 +33,7 @@ WatchFaceDigital::WatchFaceDigital(DisplayApp* app,
     settingsController {settingsController},
     heartRateController {heartRateController},
     motionController {motionController} {
-  settingsController.SetClockFace(0);
+  //settingsController.SetClockFace(0);
 
   batteryIcon = lv_label_create(lv_scr_act(), nullptr);
   lv_label_set_text(batteryIcon, Symbols::batteryFull);
@@ -92,6 +93,10 @@ WatchFaceDigital::WatchFaceDigital(DisplayApp* app,
   lv_obj_set_style_local_text_color(stepIcon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x00FFE7));
   lv_label_set_text(stepIcon, Symbols::shoe);
   lv_obj_align(stepIcon, stepValue, LV_ALIGN_OUT_LEFT_MID, -5, 0);
+
+  if (mode == Screen::Modes::Preview) {
+    timeoutTickCount = xTaskGetTickCount() + (5 * 1024);
+  }
 
   taskRefresh = lv_task_create(RefreshTaskCallback, LV_DISP_DEF_REFR_PERIOD, LV_TASK_PRIO_MID, this);
   Refresh();
@@ -231,5 +236,9 @@ void WatchFaceDigital::Refresh() {
     lv_label_set_text_fmt(stepValue, "%lu", stepCount.Get());
     lv_obj_align(stepValue, lv_scr_act(), LV_ALIGN_IN_BOTTOM_RIGHT, 0, 0);
     lv_obj_align(stepIcon, stepValue, LV_ALIGN_OUT_LEFT_MID, -5, 0);
+  }
+
+  if (mode == Screen::Modes::Preview && xTaskGetTickCount() > timeoutTickCount) {
+    running = false;
   }
 }

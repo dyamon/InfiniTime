@@ -16,12 +16,11 @@ namespace Pinetime {
 
       class Notifications : public Screen {
       public:
-        enum class Modes { Normal, Preview };
         explicit Notifications(DisplayApp* app,
                                Pinetime::Controllers::NotificationManager& notificationManager,
                                Pinetime::Controllers::AlertNotificationService& alertNotificationService,
                                Pinetime::Controllers::MotorController& motorController,
-                               Modes mode);
+                               Screen::Modes mode);
         ~Notifications() override;
 
         void Refresh() override;
@@ -34,7 +33,7 @@ namespace Pinetime {
                            uint8_t notifNr,
                            Controllers::NotificationManager::Categories,
                            uint8_t notifNb,
-                           Modes mode,
+                           Screen::Modes mode,
                            Pinetime::Controllers::AlertNotificationService& alertNotificationService);
           ~NotificationItem();
           bool IsRunning() const {
@@ -50,7 +49,7 @@ namespace Pinetime {
           lv_obj_t* label_accept;
           lv_obj_t* label_mute;
           lv_obj_t* label_reject;
-          Modes mode;
+          Screen::Modes mode;
           Pinetime::Controllers::AlertNotificationService& alertNotificationService;
           bool running = true;
         };
@@ -62,7 +61,6 @@ namespace Pinetime {
         };
         Pinetime::Controllers::NotificationManager& notificationManager;
         Pinetime::Controllers::AlertNotificationService& alertNotificationService;
-        Modes mode = Modes::Normal;
         std::unique_ptr<NotificationItem> currentItem;
         Controllers::NotificationManager::Notification::Id currentId;
         bool validDisplay = false;
